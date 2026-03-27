@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Send, CheckCircle, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { Send, CheckCircle } from 'lucide-react';
 
 export default function OrderForm() {
   const [formData, setFormData] = useState({
@@ -12,28 +11,14 @@ export default function OrderForm() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
-    setErrorMessage('');
 
-    try {
-      const { error } = await supabase.from('order_requests').insert([
-        {
-          full_name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          order_type: formData.orderType,
-          custom_details: formData.customDetails,
-        },
-      ]);
-
-      if (error) throw error;
-
+    setTimeout(() => {
       setSubmitStatus('success');
       setFormData({
         fullName: '',
@@ -42,13 +27,8 @@ export default function OrderForm() {
         orderType: '',
         customDetails: '',
       });
-    } catch (error) {
-      console.error('Error submitting order:', error);
-      setSubmitStatus('error');
-      setErrorMessage('There was an error submitting your order. Please try again.');
-    } finally {
       setIsSubmitting(false);
-    }
+    }, 1000);
   };
 
   const handleChange = (
@@ -80,16 +60,6 @@ export default function OrderForm() {
               <p className="text-green-700">
                 Thank you! We'll review your request and text you within 24 hours to discuss your custom creation.
               </p>
-            </div>
-          </div>
-        )}
-
-        {submitStatus === 'error' && (
-          <div className="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6 flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900 mb-1">Oops! Something went wrong</h3>
-              <p className="text-red-700">{errorMessage}</p>
             </div>
           </div>
         )}
